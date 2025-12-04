@@ -38,6 +38,14 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 	
 	//游戏是否失败
 	boolean isFaild = false;
+	
+	//分数
+	int score = 0;
+	
+	//道具系统
+	Item currentItem = null;
+	int tickCount = 0;
+	Random itemRandom = new Random();
 
 	
 	//	初始化蛇
@@ -52,6 +60,9 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		snakey[1] = 100;
 		snakex[2] = 50;
 		snakey[2] = 100;
+		score = 0;
+		currentItem = null;
+		tickCount = 0;
 	}
 	public SnakePanel() {
 		this.setFocusable(true);
@@ -100,6 +111,17 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		//画食物
 		food.paintIcon(this, g, foodx, foody);
 		
+		//画道具
+		if(currentItem != null && currentItem.isActive()){
+			g.setColor(Color.YELLOW);
+			g.setFont(new Font("arial",Font.BOLD,25));
+			g.drawString("*", currentItem.getX() + 8, currentItem.getY() + 20);
+		}
+		
+		//画分数
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("arial",Font.BOLD,20));
+		g.drawString("Score: " + score, 750, 50);
 		
 	}
 
@@ -145,6 +167,74 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 	 * 2.蛇移动
 	 * 3.重画一次蛇
 	 */
+	//道具更新
+	private void updateItem(){
+		if(currentItem != null && currentItem.isActive()){
+			currentItem.decreaseLifetime();
+			if(!currentItem.isActive()){
+				currentItem = null;
+			}
+		}
+	}
+	
+	//道具生成
+	private void spawnItemIfNecessary(){
+		tickCount++;
+		if(tickCount % 20 == 0 && currentItem == null){
+			if(itemRandom.nextDouble() < 0.15){
+				//生成道具
+				int x, y;
+				boolean validPosition = false;
+				do{
+					x = itemRandom.nextInt(34)*25+25;
+					y = itemRandom.nextInt(24)*25+75;
+					validPosition = true;
+					//检查是否与蛇重叠
+					for(int i=0;i<len;i++){
+						if(snakex[i] == x && snakey[i] == y){
+							validPosition = false;
+							break;
+						}
+					}
+					//检查是否与食物重叠
+					if(foodx == x && foody == y){
+						validPosition = false;
+					}
+				}while(!validPosition);
+				//随机选择道具类型
+				Item.ItemType[] types = Item.ItemType.values();
+				Item.ItemType type = types[itemRandom.nextInt(types.length)];
+				currentItem = new Item(x, y, type);
+			}
+		}
+	}
+	
+	//检查蛇是否吃到道具
+	private void checkSnakeCollisionWithItem(){
+		if(currentItem != null && currentItem.isActive()){
+			if(snakex[0] == currentItem.getX() && snakey[0] == currentItem.getY()){
+				//吃到道具
+				switch(currentItem.getType()){
+					case SCORE_ITEM:
+						score += 5;
+						break;
+					case SPEED_ITEM:
+						//降低游戏速度（减少10ms）
+						int delay = timer.getDelay();
+						if(delay > 50){ //最小速度限制
+							timer.setDelay(delay - 10);
+						}
+						break;
+					case RANDOM_ITEM:
+						System.out.println("Random item collected!");
+						break;
+				}
+				currentItem.setActive(false);
+				currentItem = null;
+			}
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -188,6 +278,10 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 					isFaild = true;
 				}
 			}
+			//道具系统
+			updateItem();
+			spawnItemIfNecessary();
+			checkSnakeCollisionWithItem();
 		}
 		repaint();
 	}
