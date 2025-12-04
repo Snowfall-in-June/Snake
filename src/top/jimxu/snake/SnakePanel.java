@@ -26,7 +26,7 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 	int[] snakex = new int[750];
 	int[] snakey = new int[750];
 	int len = 3;
-	String direction = "R";//R右L左U上D下
+	String direction = "R"; // R右L左U上D下
 	
 	//食物生成
 	Random r = new Random();
@@ -38,9 +38,11 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 	
 	//游戏是否失败
 	boolean isFaild = false;
-
 	
-	//	初始化蛇
+	// 道具系统
+	ItemSystem itemSystem;
+
+	// 初始化蛇
 	public void initSnake(){
 		isStarted = false;
 		isFaild = false;
@@ -53,23 +55,27 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		snakex[2] = 50;
 		snakey[2] = 100;
 	}
+	
 	public SnakePanel() {
 		this.setFocusable(true);
-		initSnake(); //放置静态蛇；
-		this.addKeyListener(this);//添加键盘监听接口
+		initSnake(); // 放置静态蛇
+		this.addKeyListener(this); // 添加键盘监听接口
+		// 初始化道具系统
+		itemSystem = new ItemSystem(this);
 		timer.start();
 	}
-	//设置蛇移动速度
-	Timer timer = new Timer(150, this);
 	
+	// 设置蛇移动速度
+	Timer timer = new Timer(150, this);
+
 	public void paint(Graphics g){
-		//设置背景黑色
+		// 设置背景黑色
 		this.setBackground(Color.black);
 		g.fillRect(25, 75, 850, 600);
-		//设置标题
+		// 设置标题
 		title.paintIcon(this, g, 25, 11);
 		
-		//画蛇头
+		// 画蛇头
 		if(direction.equals("R")){
 			right.paintIcon(this, g, snakex[0], snakey[0]);
 		}else if(direction.equals("L")){
@@ -79,34 +85,35 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		}else if(direction.equals("D")){
 			down.paintIcon(this, g, snakex[0], snakey[0]);
 		}
-		//画蛇身
+		// 画蛇身
 		for(int i=1;i<len;i++){
 			body.paintIcon(this, g, snakex[i],snakey[i]);
 		}
 		
-		//画开始提示语
+		// 画开始提示语
 		if(!isStarted){
 			g.setColor(Color.WHITE);
-			g.setFont(new Font("arial",Font.BOLD,30));
+			g.setFont(new Font("arial", Font.BOLD, 30));
 			g.drawString("Press Space to Start or Pause", 230, 350);
 		}
-		//画失败提示语
+		// 画失败提示语
 		if (isFaild) {
 			g.setColor(Color.WHITE);
-			g.setFont(new Font("arial",Font.BOLD,30));
-			g.drawString("Game Over,Press Space to Start", 230, 350);
+			g.setFont(new Font("arial", Font.BOLD, 30));
+			g.drawString("Game Over, Press Space to Start", 230, 350);
 		}
 		
-		//画食物
+		// 画食物
 		food.paintIcon(this, g, foodx, foody);
 		
+		// 画道具
+		itemSystem.render(g);
 		
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
 	}
 	//监听按键
 	@Override
@@ -132,13 +139,11 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 			direction="R";
 		}
 		
-		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
 	}
 	/*
 	 * 1.定个闹钟
@@ -161,7 +166,6 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 				//横坐标+25
 				snakex[0] = snakex[0]+25;
 				if(snakex[0]>850) snakex[0] = 25;
-				
 				
 			}else if(direction.equals("L")){
 				//横坐标-25
@@ -189,6 +193,12 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 				}
 			}
 		}
+		
+		// 道具系统更新
+		itemSystem.update();
+		itemSystem.spawnIfNecessary();
+		itemSystem.checkSnakeCollision();
+		
 		repaint();
 	}
 }
