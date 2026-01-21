@@ -194,6 +194,7 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 			//吃食物
 			if(snakex[0] == foodx && snakey[0] == foody){
 				len++;
+				itemManager.score += 10; // 吃到食物增加10分
 				foodx = r.nextInt(34)*25+25;
 				foody = r.nextInt(24)*25+75;
 			}
