@@ -196,6 +196,7 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 				len++;
 				foodx = r.nextInt(34)*25+25;
 				foody = r.nextInt(24)*25+75;
+				itemManager.score += 10; // 每次吃食物加10分
 			}
 			
 			//检查道具碰撞
