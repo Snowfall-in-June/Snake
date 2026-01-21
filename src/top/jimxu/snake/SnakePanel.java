@@ -39,7 +39,10 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 	//游戏是否失败
 	boolean isFaild = false;
 
-	
+	//道具管理器
+	ItemManager itemManager;
+
+
 	//	初始化蛇
 	public void initSnake(){
 		isStarted = false;
@@ -57,6 +60,7 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		this.setFocusable(true);
 		initSnake(); //放置静态蛇；
 		this.addKeyListener(this);//添加键盘监听接口
+		itemManager = new ItemManager(this);
 		timer.start();
 	}
 	//设置蛇移动速度
@@ -100,6 +104,13 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		//画食物
 		food.paintIcon(this, g, foodx, foody);
 		
+		//画道具
+		itemManager.render(g);
+		
+		//画分数
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("arial", Font.BOLD, 20));
+		g.drawString("Score: " + itemManager.score, 25, 60);
 		
 	}
 
@@ -148,7 +159,11 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		timer.start();
+		// 不需要每次都调用start()，定时器已经在构造函数中启动了
+		
+		// 更新道具系统
+		itemManager.update();
+		itemManager.spawnIfNecessary();
 		
 		if(isStarted && !isFaild){
 			//移动身体
@@ -182,6 +197,10 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 				foodx = r.nextInt(34)*25+25;
 				foody = r.nextInt(24)*25+75;
 			}
+			
+			//检查道具碰撞
+			itemManager.checkSnakeCollision();
+			
 			//判断游戏失败
 			for(int i=1;i<len;i++){
 				if(snakex[0] == snakex[i] && snakey[0] == snakey[i]){
