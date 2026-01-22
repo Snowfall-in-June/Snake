@@ -14,13 +14,22 @@ import javax.swing.Timer;
 
 public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 	//加载所有图片
-	ImageIcon up = new ImageIcon("up.png");
-	ImageIcon down = new ImageIcon("down.png");
-	ImageIcon left = new ImageIcon("left.png");
-	ImageIcon right = new ImageIcon("right.png");
-	ImageIcon title = new ImageIcon("title.jpg");
-	ImageIcon body = new ImageIcon("body.png");
-	ImageIcon food = new ImageIcon("food.png");
+	ImageIcon up = new ImageIcon(getClass().getResource("/up.png"));
+	ImageIcon down = new ImageIcon(getClass().getResource("/down.png"));
+	ImageIcon left = new ImageIcon(getClass().getResource("/left.png"));
+	ImageIcon right = new ImageIcon(getClass().getResource("/right.png"));
+	ImageIcon title = new ImageIcon(getClass().getResource("/title.jpg"));
+	ImageIcon body = new ImageIcon(getClass().getResource("/body.png"));
+	ImageIcon food = new ImageIcon(getClass().getResource("/food.png"));
+	
+	// 检查图片加载情况
+	{ System.out.println("up: " + (up != null));
+	System.out.println("down: " + (down != null));
+	System.out.println("left: " + (left != null));
+	System.out.println("right: " + (right != null));
+	System.out.println("title: " + (title != null));
+	System.out.println("body: " + (body != null));
+	System.out.println("food: " + (food != null)); }
 	
 	//蛇的数据结构设计
 	int[] snakex = new int[750];
@@ -55,7 +64,13 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		snakey[1] = 100;
 		snakex[2] = 50;
 		snakey[2] = 100;
+		// 重新生成食物位置
+		foodx = r.nextInt(34)*25+25;
+		foody = r.nextInt(24)*25+75;
 	}
+	//设置蛇移动速度
+	Timer timer = new Timer(150, this);
+	
 	public SnakePanel() {
 		this.setFocusable(true);
 		initSnake(); //放置静态蛇；
@@ -63,8 +78,6 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		itemManager = new ItemManager(this);
 		timer.start();
 	}
-	//设置蛇移动速度
-	Timer timer = new Timer(150, this);
 	
 	public void paint(Graphics g){
 		//设置背景黑色
@@ -167,6 +180,30 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		
 		if(isStarted && !isFaild){
 
+			// 蛇的移动逻辑
+			// 身体跟着头移动
+			for(int i=len-1;i>0;i--){
+				snakex[i] = snakex[i-1];
+				snakey[i] = snakey[i-1];
+			}
+			
+			// 根据方向移动蛇头
+			if(direction.equals("R")){
+				snakex[0] += 25;
+			}else if(direction.equals("L")){
+				snakex[0] -= 25;
+			}else if(direction.equals("U")){
+				snakey[0] -= 25;
+			}else if(direction.equals("D")){
+				snakey[0] += 25;
+			}
+			
+			// 边界碰撞检测
+			if(snakex[0] > 850) snakex[0] = 25;
+			if(snakex[0] < 25) snakex[0] = 850;
+			if(snakey[0] > 650) snakey[0] = 75;
+			if(snakey[0] < 75) snakey[0] = 650;
+			
 			//检查道具碰撞
 			itemManager.checkSnakeCollision();
 			
