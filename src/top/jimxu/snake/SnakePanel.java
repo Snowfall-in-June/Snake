@@ -55,12 +55,18 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		snakey[1] = 100;
 		snakex[2] = 50;
 		snakey[2] = 100;
+		// 重置食物位置
+		foodx = r.nextInt(34)*25+25;
+		foody = r.nextInt(24)*25+75;
+		// 重置道具管理器
+		itemManager = new ItemManager(this);
+		// 重置定时器速度
+		timer.setDelay(150);
 	}
 	public SnakePanel() {
 		this.setFocusable(true);
 		initSnake(); //放置静态蛇；
 		this.addKeyListener(this);//添加键盘监听接口
-		itemManager = new ItemManager(this);
 		timer.start();
 	}
 	//设置蛇移动速度
@@ -102,7 +108,9 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		}
 		
 		//画食物
-		food.paintIcon(this, g, foodx, foody);
+		if (foodx >= 25 && foodx <= 875 && foody >= 75 && foody <= 675) {
+			food.paintIcon(this, g, foodx, foody);
+		}
 		
 		//画道具
 		itemManager.render(g);
@@ -166,7 +174,36 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		itemManager.spawnIfNecessary();
 		
 		if(isStarted && !isFaild){
-
+			//移动蛇身
+			for(int i=len-1;i>0;i--){ //从最后一节开始移动
+				snakex[i] = snakex[i-1];
+				snakey[i] = snakey[i-1];
+			}
+			
+			//移动蛇头
+			if(direction.equals("R")){
+				snakex[0] += 25;
+				if(snakex[0]>850) snakex[0] = 25;
+			}else if(direction.equals("L")){
+				snakex[0] -= 25;
+				if(snakex[0]<25) snakex[0] = 850;
+			}else if(direction.equals("U")){
+				snakey[0] -= 25;
+				if(snakey[0]<75) snakey[0] = 650;
+			}else if(direction.equals("D")){
+				snakey[0] += 25;
+				if(snakey[0]>650) snakey[0] = 75;
+			}
+			
+			//检查食物碰撞
+			if(snakex[0] == foodx && snakey[0] == foody){
+				len++; //长度加1
+				itemManager.score += 5; //得分加5
+				//重新生成食物
+				foodx = r.nextInt(34)*25+25;
+				foody = r.nextInt(24)*25+75;
+			}
+			
 			//检查道具碰撞
 			itemManager.checkSnakeCollision();
 			
