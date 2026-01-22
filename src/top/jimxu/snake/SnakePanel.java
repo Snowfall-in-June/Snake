@@ -166,38 +166,7 @@ public class SnakePanel extends JPanel implements KeyListener,ActionListener{
 		itemManager.spawnIfNecessary();
 		
 		if(isStarted && !isFaild){
-			//移动身体
-			for(int i=len;i>0;i--){
-				snakex[i] = snakex[i-1];
-				snakey[i] = snakey[i-1];
-			}
-			//头移动
-			if(direction.equals("R")){
-				//横坐标+25
-				snakex[0] = snakex[0]+25;
-				if(snakex[0]>850) snakex[0] = 25;
-				
-				
-			}else if(direction.equals("L")){
-				//横坐标-25
-				snakex[0] = snakex[0]-25;
-				if(snakex[0]<25) snakex[0] = 850;
-			}else if(direction.equals("U")){
-				//纵坐标-25
-				snakey[0] = snakey[0]-25;
-				if(snakey[0]<75) snakey[0] = 650;
-			}else if(direction.equals("D")){
-				//纵坐标+25
-				snakey[0] = snakey[0]+25;
-				if(snakey[0]>650) snakey[0] = 75;
-			}
-			//吃食物
-			if(snakex[0] == foodx && snakey[0] == foody){
-				len++;
-				foodx = r.nextInt(34)*25+25;
-				foody = r.nextInt(24)*25+75;
-			}
-			
+
 			//检查道具碰撞
 			itemManager.checkSnakeCollision();
 			
